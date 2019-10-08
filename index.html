@@ -62,6 +62,14 @@
         <button class="pure-button pure-button-primary" onclick="connect()">
           Connect
         </button>
+        <p>Choose Sensor</p>
+        <select name="sensors" id="sensor_select">
+            <option value="electricity_w"">Electricity</option>
+            <option value="temperature_f">Temperature</option>
+            <option value="motion_bool">Motion</option>
+            <option value="smoke_bool">Smoke</option>
+            <option value="CO2_ppm">CO2</option>
+          </select>
         <graph></graph>
       </div>
     </div>
@@ -96,11 +104,12 @@
   <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
   <script>
     // Socketio script
-    var apiUrl = "https://netbeez-staging.herokuapp.com/";
+    //var apiUrl = "https://netbeez-staging.herokuapp.com/";
+    var apiUrl = "http://localhost:8000/";
     var socket = io(apiUrl, {
       transports: ["websocket"]
     });
-    //var socket = io("http://localhost:8000");
+    var socket = io("http://localhost:8000");
     socket.on("connect", function () {
       console.log("Connected");
     });
@@ -112,27 +121,21 @@
     });
     function connect() {
       var userID = document.getElementById("userid").value;
+      var sensor = document.getElementById("sensor_select").value;
       socket.emit("join", userID);
       console.log(userID);
 
-      function getReadings(apiUrl, userID) {
+      function getReadings(apiUrl, userID, sensor) {
         var xmlHttp = new XMLHttpRequest();
-        xmlHttp.open("GET", apiUrl + "/users/" + userID, false);
+        xmlHttp.open("GET", apiUrl + "/users/"+userID + "/"+sensor, false);
         xmlHttp.send(null);
         console.log(xmlHttp.response)
         return JSON.parse(xmlHttp.responseText);
       }
-      // var data = [
-      //   { label: "Data Set 1", x: [0, 1, 2, 3, 4], y: [0, 1, 2, 3, 4] },
-      //   { label: "Data Set 2", x: [0, 1, 2, 3, 4], y: [0, 1, 4, 9, 16] },
-      //   { label: "Data Set 3", x: [0, 1, 2, 3, 4], y: [2, 3, 5, 2, 12] }
-      // ];
-      var data = getReadings(apiUrl, userID);
+      var data = getReadings(apiUrl, userID, sensor);
       var xy_chart = d3_xy_chart()
         .width(960)
         .height(500);
-      //.xlabel("X Axis")
-      //.ylabel("Y Axis");
       var svg = d3
         .select("graph")
         .append("svg")
@@ -142,14 +145,9 @@
       function d3_xy_chart() {
         var width = 640,
           height = 480;
-        //xlabel = "X Axis Label",
-        //ylabel = "Y Axis Label";
 
         function chart(selection) {
           selection.each(function (datasets) {
-            //
-            // Create the plot.
-            //
             var margin = { top: 20, right: 80, bottom: 30, left: 50 },
               innerwidth = width - margin.left - margin.right,
               innerheight = height - margin.top - margin.bottom;
@@ -208,7 +206,7 @@
 
             var draw_line = d3.svg
               .line()
-              .interpolate("basis")
+              //.interpolate("basis")
               .x(function (d) {
                 return x_scale(d[0]);
               })
@@ -236,28 +234,6 @@
               .append("g")
               .attr("class", "y grid")
               .call(y_grid);
-
-            svg
-              .append("g")
-              .attr("class", "x axis")
-              .attr("transform", "translate(0," + innerheight + ")")
-              .call(x_axis)
-              .append("text")
-              .attr("dy", "-.71em")
-              .attr("x", innerwidth)
-              .style("text-anchor", "end");
-            //.text(xlabel);
-
-            svg
-              .append("g")
-              .attr("class", "y axis")
-              .call(y_axis)
-              .append("text")
-              .attr("transform", "rotate(-90)")
-              .attr("y", 6)
-              .attr("dy", "0.71em")
-              .style("text-anchor", "end");
-            //.text(ylabel);
 
             var data_lines = svg
               .selectAll(".d3_xy_chart_line")
@@ -316,18 +292,6 @@
           height = value;
           return chart;
         };
-
-        /*chart.xlabel = function(value) {
-          if (!arguments.length) return xlabel;
-          xlabel = value;
-          return chart;
-        };
-
-        chart.ylabel = function(value) {
-          if (!arguments.length) return ylabel;
-          ylabel = value;
-          return chart;
-        };*/
 
         return chart;
       }
