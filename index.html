@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NetBeez Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/purecss@1.0.1/build/pure-min.css"
+      integrity="sha384-"
+      crossorigin="anonymous"
+    />
+
+    <!--[if lte IE 8]>
+      <link rel="stylesheet" href="css/layouts/side-menu-old-ie.css" />
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="css/layouts/side-menu.css" />
+    <!--<![endif]-->
+  </head>
+
+  <body>
+    <div id="layout">
+      <!-- Menu toggle -->
+      <a href="#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+      </a>
+
+      <div id="menu">
+        <div class="pure-menu">
+          <a class="pure-menu-heading" href="#">Sensors</a>
+
+          <ul class="pure-menu-list">
+            <li class="pure-menu-item menu-item-divided pure-menu-selected">
+              <a href="index.html" class="pure-menu-link">Dashboard</a>
+            </li>
+            <li class="pure-menu-item">
+              <a href="electricity.html" class="pure-menu-link">Electricity</a>
+            </li>
+            <li class="pure-menu-item">
+              <a href="temperature.html" class="pure-menu-link">Motion</a>
+            </li>
+            <li class="pure-menu-item">
+              <a href="CO2.html" class="pure-menu-link">CO2</a>
+            </li>
+            <li class="pure-menu-item">
+              <a href="motion.html" class="pure-menu-link">Motion</a>
+            </li>
+            <li class="pure-menu-item">
+              <a href="smoke.html" class="pure-menu-link">Smoke</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div id="main">
+        <div class="header">
+          <h1>IoBeez Dashboard</h1>
+          <h2>Manage and view IoT Sensors</h2>
+        </div>
+
+        <div class="content"></div>
+      </div>
+    </div>
+
+    <script src="js/ui.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
+    <script>
+      //var socket = io("https://netbeez-staging.herokuapp.com/");
+      var socket = io("http://localhost:8000");
+      socket.on("connect", function() {
+        console.log("connected")
+      });
+      socket.on("event", function(data) {});
+      socket.on("disconnect", function() {});
+    </script>
+  </body>
+</html>
