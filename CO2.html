@@ -61,7 +61,7 @@
         </div>
 
         <div class="content">
-                <input id="userid" type="text" placeholder="User ID" />
+          <input id="userid" type="text" placeholder="User ID" />
           <input
             id="CO2_ppm"
             class="pure-input-1-2"
@@ -87,10 +87,11 @@
     <script>
       // Socketio script
       var apiUrl = "https://netbeez-staging.herokuapp.com/";
-      //   var socket = io(apiUrl, {
-      //     transports: ["websocket"]
-      //   });
-      var socket = io("http://localhost:8000");
+      //var apiUrl = "http://localhost:8000"
+      var socket = io(apiUrl, {
+        transports: ["websocket"]
+      });
+      var socket = io(apiUrl);
       socket.on("connect", function() {
         console.log("Connected");
       });

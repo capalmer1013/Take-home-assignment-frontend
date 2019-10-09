@@ -58,18 +58,67 @@
       </div>
 
       <div class="content">
+          <p>Enter User ID</p>
         <input id="userid" type="text" placeholder="User ID" />
-        <button class="pure-button pure-button-primary" onclick="connect()">
-          Connect
-        </button>
         <p>Choose Sensor</p>
         <select name="sensors" id="sensor_select">
-            <option value="electricity_w"">Electricity</option>
-            <option value="temperature_f">Temperature</option>
-            <option value="motion_bool">Motion</option>
-            <option value="smoke_bool">Smoke</option>
-            <option value="CO2_ppm">CO2</option>
-          </select>
+          <option value="electricity_w"">Electricity</option>
+            <option value=" temperature_f">Temperature</option>
+          <option value="motion_bool">Motion</option>
+          <option value="smoke_bool">Smoke</option>
+          <option value="CO2_ppm">CO2</option>
+        </select>
+        <button class="pure-button pure-button-primary" onclick="connect()">
+            Connect
+        </button>
+        <button class="pure-button pure-button-primary" onclick="refresh()">
+          Refresh
+        </button>
+        <table class="pure-table">
+            <thead>
+                <tr>
+                    <th>Sensor</th>
+                    <th>Current Reading</th>
+                    <th>15 min avg</th>
+                    <th>60 min avg</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>Electricity (w)</td>
+                    <td id="electricity_current"></td>
+                    <td id="electricity_15m"></td>
+                    <td id="electricity_60m"></td>
+                </tr>
+        
+                <tr>
+                    <td>Temperature (f)</td>
+                    <td id="temperature_current"></td>
+                    <td id="temperature_15m"></td>
+                    <td id="temperature_60m"></td>
+                </tr>
+        
+                <tr>
+                    <td>Motion</td>
+                    <td id="motion_current"></td>
+                    <td id="motion_15m">N/A</td>
+                    <td id="motion_60m">N/A</td>
+                </tr>
+                <tr>
+                    <td>Smoke</td>
+                    <td id="smoke_current"></td>
+                    <td id="smoke_15m">N/A</td>
+                    <td id="smoke_60m">N/A</td>
+                </tr>
+                <tr>
+                    <td>CO2 (ppm)</td>
+                    <td id="CO2_current"></td>
+                    <td id="CO2_15m"></td>
+                    <td id="CO2_60m"></td>
+                </tr>
+            </tbody>
+        </table>
         <graph></graph>
       </div>
     </div>
@@ -104,12 +153,12 @@
   <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
   <script>
     // Socketio script
-    //var apiUrl = "https://netbeez-staging.herokuapp.com/";
-    var apiUrl = "http://localhost:8000/";
+    var apiUrl = "https://netbeez-staging.herokuapp.com/";
+    //var apiUrl = "http://localhost:8000/";
     var socket = io(apiUrl, {
       transports: ["websocket"]
     });
-    var socket = io("http://localhost:8000");
+    var socket = io(apiUrl);
     socket.on("connect", function () {
       console.log("Connected");
     });
@@ -119,6 +168,29 @@
     socket.on("disconnect", function () {
       console.log("Disconnected");
     });
+    function refresh(){
+      var userID = document.getElementById("userid").value;
+      var result = getAvg(apiUrl, userID);
+        document.getElementById("electricity_current").innerText = result["electricity_w"]["current"]
+        document.getElementById("electricity_15m").innerText = result["electricity_w"]["15m"]
+        document.getElementById("electricity_60m").innerText = result["electricity_w"]["60m"]
+        document.getElementById("temperature_current").innerText = result["temperature_f"]["current"]
+        document.getElementById("temperature_15m").innerText = result["temperature_f"]["15m"]
+        document.getElementById("temperature_60m").innerText = result["temperature_f"]["60m"]
+        document.getElementById("motion_current").innerText = result["motion_bool"]["current"]
+        document.getElementById("smoke_current").innerText = result["smoke_bool"]["current"]
+        document.getElementById("CO2_current").innerText = result["CO2_ppm"]["current"]
+        document.getElementById("CO2_15m").innerText = result["CO2_ppm"]["15m"]
+        document.getElementById("CO2_60m").innerText = result["CO2_ppm"]["60m"]
+      
+    }
+    function getAvg(apiUrl, userID) {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("GET", apiUrl + "/users/" + userID, false);
+        xmlHttp.send(null);
+        console.log(xmlHttp.response)
+        return JSON.parse(xmlHttp.responseText);
+      }
     function connect() {
       var userID = document.getElementById("userid").value;
       var sensor = document.getElementById("sensor_select").value;
@@ -127,7 +199,7 @@
 
       function getReadings(apiUrl, userID, sensor) {
         var xmlHttp = new XMLHttpRequest();
-        xmlHttp.open("GET", apiUrl + "/users/"+userID + "/"+sensor, false);
+        xmlHttp.open("GET", apiUrl + "/users/" + userID + "/" + sensor, false);
         xmlHttp.send(null);
         console.log(xmlHttp.response)
         return JSON.parse(xmlHttp.responseText);
@@ -148,7 +220,7 @@
 
         function chart(selection) {
           selection.each(function (datasets) {
-            var margin = { top: 20, right: 80, bottom: 30, left: 50 },
+            var margin = { top: 40, right: 80, bottom: 30, left: 50 },
               innerwidth = width - margin.left - margin.right,
               innerheight = height - margin.top - margin.bottom;
 
@@ -224,6 +296,12 @@
                 "translate(" + margin.left + "," + margin.top + ")"
               );
 
+            svg.append("text")
+              .attr("x", (width / 2))
+              .attr("y", 0 - (margin.top / 2))
+              .attr("text-anchor", "middle")
+              .style("font-size", "16px")
+              .text(sensor + " graph");
             svg
               .append("g")
               .attr("class", "x grid")
