@@ -154,7 +154,7 @@
   <script>
     // Socketio script
     var apiUrl = "https://netbeez-staging.herokuapp.com/";
-    //var apiUrl = "http://localhost:8000/";
+    var apiUrl = "http://localhost:8000/";
     var socket = io(apiUrl, {
       transports: ["websocket"]
     });
@@ -162,8 +162,25 @@
     socket.on("connect", function () {
       console.log("Connected");
     });
-    socket.on("event", function (data) {
-      console.log(data);
+    socket.on("live", function (data) {
+      //console.log(data);
+      switch(data["key"]){
+        case "electricity_w":
+          document.getElementById("electricity_current").innerText = data["value"];
+          break;
+        case "temperature_f":
+          document.getElementById("temperature_current").innerText = data["value"];
+          break;
+        case "motion_bool":
+          document.getElementById("motion_current").innerText = data["value"];
+          break;
+        case "smoke_bool":
+          document.getElementById("smoke_current").innerText = data["value"];
+          break;
+        case "CO2_ppm":
+          document.getElementById("CO2_current").innerText = data["value"];
+          break;
+      }
     });
     socket.on("disconnect", function () {
       console.log("Disconnected");
@@ -188,20 +205,20 @@
         var xmlHttp = new XMLHttpRequest();
         xmlHttp.open("GET", apiUrl + "/users/" + userID, false);
         xmlHttp.send(null);
-        console.log(xmlHttp.response)
+        //console.log(xmlHttp.response)
         return JSON.parse(xmlHttp.responseText);
       }
     function connect() {
       var userID = document.getElementById("userid").value;
       var sensor = document.getElementById("sensor_select").value;
       socket.emit("join", userID);
-      console.log(userID);
+      //console.log(userID);
 
       function getReadings(apiUrl, userID, sensor) {
         var xmlHttp = new XMLHttpRequest();
         xmlHttp.open("GET", apiUrl + "/users/" + userID + "/" + sensor, false);
         xmlHttp.send(null);
-        console.log(xmlHttp.response)
+        //console.log(xmlHttp.response)
         return JSON.parse(xmlHttp.responseText);
       }
       var data = getReadings(apiUrl, userID, sensor);
