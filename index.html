@@ -36,7 +36,7 @@
             <a href="electricity.html" class="pure-menu-link">Electricity</a>
           </li>
           <li class="pure-menu-item">
-            <a href="temperature.html" class="pure-menu-link">Motion</a>
+            <a href="temperature.html" class="pure-menu-link">Temperature</a>
           </li>
           <li class="pure-menu-item">
             <a href="CO2.html" class="pure-menu-link">CO2</a>
@@ -63,9 +63,7 @@
         <p>Choose Sensor</p>
         <select name="sensors" id="sensor_select">
           <option value="electricity_w"">Electricity</option>
-            <option value=" temperature_f">Temperature</option>
-          <option value="motion_bool">Motion</option>
-          <option value="smoke_bool">Smoke</option>
+          <option value=" temperature_f">Temperature</option>
           <option value="CO2_ppm">CO2</option>
         </select>
         <button class="pure-button pure-button-primary" onclick="connect()">
@@ -213,7 +211,6 @@
       var sensor = document.getElementById("sensor_select").value;
       socket.emit("join", userID);
       //console.log(userID);
-
       function getReadings(apiUrl, userID, sensor) {
         var xmlHttp = new XMLHttpRequest();
         xmlHttp.open("GET", apiUrl + "/users/" + userID + "/" + sensor, false);

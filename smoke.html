@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NetBeez Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/purecss@1.0.1/build/pure-min.css"
+      integrity="sha384-"
+      crossorigin="anonymous"
+    />
+
+    <!--[if lte IE 8]>
+      <link rel="stylesheet" href="css/layouts/side-menu-old-ie.css" />
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="css/layouts/side-menu.css" />
+    <!--<![endif]-->
+  </head>
+
+  <body>
+    <div id="layout">
+      <!-- Menu toggle -->
+      <a href="#menu" id="menuLink" class="menu-link">
+        <!-- Hamburger icon -->
+        <span></span>
+      </a>
+
+      <div id="menu">
+        <div class="pure-menu">
+          <a class="pure-menu-heading" href="#">Sensors</a>
+
+          <ul class="pure-menu-list">
+            <li class="pure-menu-item">
+              <a href="index.html" class="pure-menu-link">Dashboard</a>
+            </li>
+            <li class="pure-menu-item">
+              <a href="electricity.html" class="pure-menu-link">Electricity</a>
+            </li>
+            <li class="pure-menu-item">
+              <a href="temperature.html" class="pure-menu-link">Temperature</a>
+            </li>
+            <li class="pure-menu-item">
+              <a href="CO2.html" class="pure-menu-link">CO2</a>
+            </li>
+            <li class="pure-menu-item">
+              <a href="motion.html" class="pure-menu-link">Motion</a>
+            </li>
+            <li class="pure-menu-item menu-item-divided pure-menu-selected">
+              <a href="smoke.html" class="pure-menu-link">Smoke</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div id="main">
+        <div class="header">
+          <h1>Smoke Sensor</h1>
+          <h2>Update Smoke Activity</h2>
+        </div>
+
+        <div class="content">
+          <p>Set User Id</p>
+          <input id="userid" type="text" placeholder="User ID" />
+          <p>Set Smoke Detector</p>
+          <input
+            id="smoke_bool"
+            class="pure-input-1-2"
+            type="checkbox"
+          />
+          <p>Send Value</p>
+          <button
+            class="pure-input-1-2 pure-button pure-button-primary"
+            onclick="sendValue()"
+          >
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+    <script src="js/ui.js"></script>
+    <!--<script src="https://d3js.org/d3.v5.min.js"></script>-->
+    <script src="http://d3js.org/d3.v2.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
+    <script>
+      // Socketio script
+      var apiUrl = "https://netbeez-staging.herokuapp.com/";
+      var apiUrl = "http://localhost:8000"
+      var socket = io(apiUrl, {
+        transports: ["websocket"]
+      });
+      var socket = io(apiUrl);
+      socket.on("connect", function() {
+        console.log("Connected");
+      });
+      socket.on("event", function(data) {
+        console.log(data);
+      });
+      socket.on("disconnect", function() {
+        console.log("Disconnected");
+      });
+      function connect() {
+        var userID = document.getElementById("userid").value;
+        socket.emit("join", userID);
+        console.log(userID);
+      }
+      function sendValue() {
+        var value = !!document.getElementById("smoke_bool").checked;
+        var userID = document.getElementById("userid").value;
+        console.log(value);
+        socket.emit("json", {
+          id: userID,
+          sensor_type: "smoke_bool",
+          sensor_name: "Smoke sensor1",
+          value: value
+        });
+      }
+
+      setInterval(sendValue, 30000);
+    </script>
+  </body>
+</html>
